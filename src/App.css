@@ -924,6 +924,13 @@ body {
   flex-shrink: 0;
 }
 
+.folder-icon {
+  color: var(--text-faint);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
 .folder-name {
   font-size: 12px;
   font-weight: 500;
@@ -960,10 +967,61 @@ body {
   font-size: 11px;
   color: var(--text-faint);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .notebook-row.selected .notebook-row-icon {
   color: var(--accent);
+}
+
+.notebook-row--prompt .notebook-row-icon {
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.notebook-prompt-badge {
+  font-size: 9px;
+  color: var(--accent);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.1s;
+  flex-shrink: 0;
+}
+
+.folder-row:hover .row-actions,
+.notebook-row:hover .row-actions {
+  opacity: 1;
+}
+
+.row-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: var(--radius);
+  transition: color 0.1s, background 0.1s;
+}
+
+.row-action-btn:hover {
+  background: var(--surface2);
+  color: var(--text-muted);
+}
+
+.row-action-btn--danger:hover {
+  background: rgba(192, 57, 43, 0.06);
+  color: #c0392b;
 }
 
 .notebook-row-name {
@@ -1222,4 +1280,23 @@ body {
 .modal-btn-primary:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+.modal-btn-danger {
+  background: #c0392b;
+  border: none;
+  border-radius: var(--radius);
+  color: #faf7f0;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  transition: opacity 0.15s;
+}
+
+.modal-btn-danger:hover {
+  opacity: 0.85;
 }

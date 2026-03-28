@@ -5,7 +5,31 @@ import { FolderTree } from '../components/notebooks/FolderTree'
 import { NotebookEditor } from '../components/notebooks/NotebookEditor'
 import { CreateFolderModal } from '../components/notebooks/CreateFolderModal'
 import { CreateNotebookModal } from '../components/notebooks/CreateNotebookModal'
+import { EditNotebookModal } from '../components/notebooks/EditNotebookModal'
+import { ConfirmModal } from '../components/notebooks/ConfirmModal'
 import type { Folder, Notebook } from '../types'
+
+type PendingDelete =
+  | { type: 'notebook'; item: Notebook; entryCount: number }
+  | { type: 'folder'; item: Folder; notebookCount: number; entryCount: number }
+
+async function deleteNotebook(notebookId: string) {
+  await db.transaction('rw', db.notebooks, db.notebookEntries, async () => {
+    await db.notebookEntries.where('notebookId').equals(notebookId).delete()
+    await db.notebooks.delete(notebookId)
+  })
+}
+
+async function deleteFolder(folderId: string) {
+  await db.transaction('rw', db.folders, db.notebooks, db.notebookEntries, async () => {
+    const notebookIds = (await db.notebooks.where('folderId').equals(folderId).primaryKeys()) as string[]
+    for (const nbId of notebookIds) {
+      await db.notebookEntries.where('notebookId').equals(nbId).delete()
+    }
+    await db.notebooks.where('folderId').equals(folderId).delete()
+    await db.folders.delete(folderId)
+  })
+}
 
 export function NotatnikiView() {
   const [folders, setFolders] = useState<Folder[]>([])
@@ -14,6 +38,8 @@ export function NotatnikiView() {
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<string>>(new Set())
   const [showCreateFolder, setShowCreateFolder] = useState(false)
   const [showCreateNotebook, setShowCreateNotebook] = useState(false)
+  const [editingNotebook, setEditingNotebook] = useState<Notebook | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
 
   useEffect(() => {
     const sub1 = liveQuery(() => db.folders.toArray()).subscribe(rows => setFolders([...rows].sort((a, b) => a.order - b.order)))
@@ -33,6 +59,38 @@ export function NotatnikiView() {
     })
   }
 
+  const handleDeleteNotebook = async (nb: Notebook) => {
+    const entryCount = await db.notebookEntries.where('notebookId').equals(nb.id).count()
+    setPendingDelete({ type: 'notebook', item: nb, entryCount })
+  }
+
+  const handleDeleteFolder = async (folder: Folder) => {
+    const notebookIds = (await db.notebooks.where('folderId').equals(folder.id).primaryKeys()) as string[]
+    const entryCount = await db.notebookEntries.where('notebookId').anyOf(notebookIds).count()
+    setPendingDelete({ type: 'folder', item: folder, notebookCount: notebookIds.length, entryCount })
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDelete) return
+    if (pendingDelete.type === 'notebook') {
+      await deleteNotebook(pendingDelete.item.id)
+      if (selectedNotebookId === pendingDelete.item.id) setSelectedNotebookId(null)
+    } else {
+      const folderNotebookIds = new Set(
+        notebooks.filter(n => n.folderId === pendingDelete.item.id).map(n => n.id)
+      )
+      await deleteFolder(pendingDelete.item.id)
+      if (selectedNotebookId && folderNotebookIds.has(selectedNotebookId)) setSelectedNotebookId(null)
+    }
+    setPendingDelete(null)
+  }
+
+  const deleteMessage = pendingDelete
+    ? pendingDelete.type === 'notebook'
+      ? `Usunąć notatnik «${pendingDelete.item.name}»? Zawiera ${pendingDelete.entryCount} ${pendingDelete.entryCount === 1 ? 'notatkę' : 'notatek'}.`
+      : `Usunąć folder «${pendingDelete.item.name}»? Zawiera ${pendingDelete.notebookCount} ${pendingDelete.notebookCount === 1 ? 'notatnik' : 'notatników'} i ${pendingDelete.entryCount} ${pendingDelete.entryCount === 1 ? 'notatkę' : 'notatek'}.`
+    : ''
+
   return (
     <div className="journal-layout">
       <aside className="entry-list">
@@ -45,6 +103,9 @@ export function NotatnikiView() {
           onToggleFolder={handleToggleFolder}
           onCreateFolder={() => setShowCreateFolder(true)}
           onCreateNotebook={() => setShowCreateNotebook(true)}
+          onDeleteFolder={handleDeleteFolder}
+          onDeleteNotebook={handleDeleteNotebook}
+          onEditNotebook={setEditingNotebook}
         />
       </aside>
 
@@ -66,6 +127,20 @@ export function NotatnikiView() {
         <CreateNotebookModal
           folders={folders}
           onClose={() => setShowCreateNotebook(false)}
+        />
+      )}
+      {editingNotebook && (
+        <EditNotebookModal
+          notebook={editingNotebook}
+          folders={folders}
+          onClose={() => setEditingNotebook(null)}
+        />
+      )}
+      {pendingDelete && (
+        <ConfirmModal
+          message={deleteMessage}
+          onConfirm={handleConfirmDelete}
+          onClose={() => setPendingDelete(null)}
         />
       )}
     </div>
