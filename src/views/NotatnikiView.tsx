@@ -35,6 +35,7 @@ async function deleteFolder(folderId: string) {
 export function NotatnikiView() {
   const [folders, setFolders] = useState<Folder[]>([])
   const [notebooks, setNotebooks] = useState<Notebook[]>([])
+  const [usedPromptCounts, setUsedPromptCounts] = useState<Map<string, number>>(new Map())
   const [selectedNotebookId, setSelectedNotebookId] = useState<string | null>(null)
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<string>>(new Set())
   const [showCreateFolder, setShowCreateFolder] = useState(false)
@@ -46,9 +47,19 @@ export function NotatnikiView() {
   useEffect(() => {
     const sub1 = liveQuery(() => db.folders.toArray()).subscribe(rows => setFolders([...rows].sort((a, b) => a.order - b.order)))
     const sub2 = liveQuery(() => db.notebooks.toArray()).subscribe(rows => setNotebooks([...rows].sort((a, b) => a.order - b.order)))
+    const sub3 = liveQuery(() => db.notebookEntries.toArray()).subscribe(rows => {
+      const counts = new Map<string, number>()
+      for (const entry of rows) {
+        if (entry.prompt) {
+          counts.set(entry.notebookId, (counts.get(entry.notebookId) ?? 0) + 1)
+        }
+      }
+      setUsedPromptCounts(counts)
+    })
     return () => {
       sub1.unsubscribe()
       sub2.unsubscribe()
+      sub3.unsubscribe()
     }
   }, [])
 
@@ -101,6 +112,7 @@ export function NotatnikiView() {
         <FolderTree
           folders={folders}
           notebooks={notebooks}
+          usedPromptCounts={usedPromptCounts}
           selectedNotebookId={selectedNotebookId}
           expandedFolderIds={expandedFolderIds}
           onSelectNotebook={setSelectedNotebookId}

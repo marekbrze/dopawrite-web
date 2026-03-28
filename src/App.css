@@ -993,6 +993,29 @@ body {
   flex-shrink: 0;
 }
 
+.nb-prompt-ring {
+  flex-shrink: 0;
+  display: block;
+}
+
+.nb-prompt-ring-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2;
+}
+
+.nb-prompt-ring-fill {
+  fill: none;
+  stroke: var(--accent-soft);
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.nb-prompt-ring--done .nb-prompt-ring-fill {
+  stroke: var(--accent);
+}
+
 .row-actions {
   display: flex;
   align-items: center;

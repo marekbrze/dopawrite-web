@@ -76,16 +76,24 @@ export function NotebookEditor({ notebookId }: Props) {
     return prompts[0]
   }, [])
 
-  const handleReroll = useCallback(() => {
+  const handleReroll = useCallback(async () => {
     if (!notebook) return
-    const prompts = (notebook.prompts ?? []).filter(p => !usedPrompts.has(p))
+    // Exclude both persisted used prompts AND the currently shown draft prompt
+    const excluded = new Set([...usedPrompts, ...(draftPrompt ? [draftPrompt] : [])])
+    const prompts = (notebook.prompts ?? []).filter(p => !excluded.has(p))
     if (prompts.length === 0) return
-    if (notebook.promptMode === 'shuffle') {
-      setDraftPrompt(prompts[Math.floor(Math.random() * prompts.length)])
-    } else {
-      setDraftPrompt(prompts[0])
+    const newPrompt = notebook.promptMode === 'shuffle'
+      ? prompts[Math.floor(Math.random() * prompts.length)]
+      : prompts[0]
+    setDraftPrompt(newPrompt)
+    // If editing a saved entry (not draft), persist the new prompt immediately
+    if (selectedEntryId && selectedEntryId !== DRAFT_ID) {
+      await db.notebookEntries.update(selectedEntryId, {
+        prompt: newPrompt,
+        updatedAt: new Date().toISOString(),
+      })
     }
-  }, [notebook, usedPrompts])
+  }, [notebook, usedPrompts, draftPrompt, selectedEntryId])
 
   const handleNewEntry = useCallback(() => {
     if (!notebook) return

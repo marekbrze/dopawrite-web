@@ -18,9 +18,33 @@ const NotebookIcon = () => (
   </svg>
 )
 
+const CIRCUMFERENCE = 2 * Math.PI * 5 // r=5
+
+function PromptRing({ used, total }: { used: number; total: number }) {
+  const pct = total > 0 ? used / total : 0
+  const done = used >= total
+  const fill = pct * CIRCUMFERENCE
+  return (
+    <svg
+      className={`nb-prompt-ring${done ? ' nb-prompt-ring--done' : ''}`}
+      width="14" height="14" viewBox="0 0 14 14"
+      aria-hidden="true"
+    >
+      <circle cx="7" cy="7" r="5" className="nb-prompt-ring-bg" />
+      <circle
+        cx="7" cy="7" r="5"
+        className="nb-prompt-ring-fill"
+        strokeDasharray={`${fill} ${CIRCUMFERENCE}`}
+        transform="rotate(-90 7 7)"
+      />
+    </svg>
+  )
+}
+
 interface Props {
   folders: Folder[]
   notebooks: Notebook[]
+  usedPromptCounts: Map<string, number>
   selectedNotebookId: string | null
   expandedFolderIds: Set<string>
   onSelectNotebook: (id: string) => void
@@ -34,6 +58,7 @@ interface Props {
 export function FolderTree({
   folders,
   notebooks,
+  usedPromptCounts,
   selectedNotebookId,
   expandedFolderIds,
   onSelectNotebook,
@@ -66,7 +91,9 @@ export function FolderTree({
           >
             <span className="notebook-row-icon"><NotebookIcon /></span>
             <span className="notebook-row-name">{nb.name}</span>
-            {nb.type === 'prompt-based' && <span className="notebook-prompt-badge">✦</span>}
+            {nb.type === 'prompt-based' && (nb.prompts ?? []).length > 0 && (
+              <PromptRing used={usedPromptCounts.get(nb.id) ?? 0} total={(nb.prompts ?? []).length} />
+            )}
             <span className="row-actions">
               <button className="row-action-btn" title="Edytuj" onClick={e => { e.stopPropagation(); onEditNotebook(nb) }}>✎</button>
             </span>
@@ -96,7 +123,9 @@ export function FolderTree({
                 >
                   <span className="notebook-row-icon"><NotebookIcon /></span>
                   <span className="notebook-row-name">{nb.name}</span>
-                  {nb.type === 'prompt-based' && <span className="notebook-prompt-badge">✦</span>}
+                  {nb.type === 'prompt-based' && (nb.prompts ?? []).length > 0 && (
+              <PromptRing used={usedPromptCounts.get(nb.id) ?? 0} total={(nb.prompts ?? []).length} />
+            )}
                   <span className="row-actions">
                     <button className="row-action-btn" title="Edytuj" onClick={e => { e.stopPropagation(); onEditNotebook(nb) }}>✎</button>
                   </span>
