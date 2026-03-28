@@ -6,6 +6,7 @@ interface Props {
   notebook: Notebook
   folders: Folder[]
   onClose: () => void
+  onDelete: () => void
 }
 
 function parsePrompts(raw: string): string[] {
@@ -15,7 +16,7 @@ function parsePrompts(raw: string): string[] {
     .filter(line => line.trim().length > 0)
 }
 
-export function EditNotebookModal({ notebook, folders, onClose }: Props) {
+export function EditNotebookModal({ notebook, folders, onClose, onDelete }: Props) {
   const [name, setName] = useState(notebook.name)
   const [folderId, setFolderId] = useState<string>(notebook.folderId ?? '')
   const [type, setType] = useState<NotebookType>(notebook.type)
@@ -141,9 +142,12 @@ export function EditNotebookModal({ notebook, folders, onClose }: Props) {
             </>
           )}
 
-          <div className="modal-actions">
-            <button type="button" className="modal-btn-secondary" onClick={onClose}>Anuluj</button>
-            <button type="submit" className="modal-btn-primary" disabled={!name.trim()}>Zapisz</button>
+          <div className="modal-actions modal-actions--spread">
+            <button type="button" className="modal-btn-danger" onClick={onDelete}>Usuń notatnik</button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="button" className="modal-btn-secondary" onClick={onClose}>Anuluj</button>
+              <button type="submit" className="modal-btn-primary" disabled={!name.trim()}>Zapisz</button>
+            </div>
           </div>
         </form>
       </div>

@@ -6,6 +6,7 @@ import { NotebookEditor } from '../components/notebooks/NotebookEditor'
 import { CreateFolderModal } from '../components/notebooks/CreateFolderModal'
 import { CreateNotebookModal } from '../components/notebooks/CreateNotebookModal'
 import { EditNotebookModal } from '../components/notebooks/EditNotebookModal'
+import { EditFolderModal } from '../components/notebooks/EditFolderModal'
 import { ConfirmModal } from '../components/notebooks/ConfirmModal'
 import type { Folder, Notebook } from '../types'
 
@@ -39,6 +40,7 @@ export function NotatnikiView() {
   const [showCreateFolder, setShowCreateFolder] = useState(false)
   const [showCreateNotebook, setShowCreateNotebook] = useState(false)
   const [editingNotebook, setEditingNotebook] = useState<Notebook | null>(null)
+  const [editingFolder, setEditingFolder] = useState<Folder | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
 
   useEffect(() => {
@@ -59,12 +61,14 @@ export function NotatnikiView() {
     })
   }
 
-  const handleDeleteNotebook = async (nb: Notebook) => {
+  const handleRequestDeleteNotebook = async (nb: Notebook) => {
+    setEditingNotebook(null)
     const entryCount = await db.notebookEntries.where('notebookId').equals(nb.id).count()
     setPendingDelete({ type: 'notebook', item: nb, entryCount })
   }
 
-  const handleDeleteFolder = async (folder: Folder) => {
+  const handleRequestDeleteFolder = async (folder: Folder) => {
+    setEditingFolder(null)
     const notebookIds = (await db.notebooks.where('folderId').equals(folder.id).primaryKeys()) as string[]
     const entryCount = await db.notebookEntries.where('notebookId').anyOf(notebookIds).count()
     setPendingDelete({ type: 'folder', item: folder, notebookCount: notebookIds.length, entryCount })
@@ -103,8 +107,7 @@ export function NotatnikiView() {
           onToggleFolder={handleToggleFolder}
           onCreateFolder={() => setShowCreateFolder(true)}
           onCreateNotebook={() => setShowCreateNotebook(true)}
-          onDeleteFolder={handleDeleteFolder}
-          onDeleteNotebook={handleDeleteNotebook}
+          onEditFolder={setEditingFolder}
           onEditNotebook={setEditingNotebook}
         />
       </aside>
@@ -134,6 +137,14 @@ export function NotatnikiView() {
           notebook={editingNotebook}
           folders={folders}
           onClose={() => setEditingNotebook(null)}
+          onDelete={() => handleRequestDeleteNotebook(editingNotebook)}
+        />
+      )}
+      {editingFolder && (
+        <EditFolderModal
+          folder={editingFolder}
+          onClose={() => setEditingFolder(null)}
+          onDelete={() => handleRequestDeleteFolder(editingFolder)}
         />
       )}
       {pendingDelete && (

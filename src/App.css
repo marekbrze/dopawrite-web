@@ -1238,6 +1238,10 @@ body {
   padding-top: 4px;
 }
 
+.modal-actions--spread {
+  justify-content: space-between;
+}
+
 .modal-btn-secondary {
   background: none;
   border: 1px solid var(--border);

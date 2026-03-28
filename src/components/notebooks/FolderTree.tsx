@@ -27,8 +27,7 @@ interface Props {
   onToggleFolder: (id: string) => void
   onCreateFolder: () => void
   onCreateNotebook: () => void
-  onDeleteFolder: (folder: Folder) => void
-  onDeleteNotebook: (notebook: Notebook) => void
+  onEditFolder: (folder: Folder) => void
   onEditNotebook: (notebook: Notebook) => void
 }
 
@@ -41,8 +40,7 @@ export function FolderTree({
   onToggleFolder,
   onCreateFolder,
   onCreateNotebook,
-  onDeleteFolder,
-  onDeleteNotebook,
+  onEditFolder,
   onEditNotebook,
 }: Props) {
   const sortedFolders = [...folders].sort((a, b) => a.order - b.order)
@@ -71,7 +69,6 @@ export function FolderTree({
             {nb.type === 'prompt-based' && <span className="notebook-prompt-badge">✦</span>}
             <span className="row-actions">
               <button className="row-action-btn" title="Edytuj" onClick={e => { e.stopPropagation(); onEditNotebook(nb) }}>✎</button>
-              <button className="row-action-btn row-action-btn--danger" title="Usuń" onClick={e => { e.stopPropagation(); onDeleteNotebook(nb) }}>✕</button>
             </span>
           </div>
         ))}
@@ -88,7 +85,7 @@ export function FolderTree({
                 <span className="folder-icon">{isExpanded ? <FolderOpenIcon /> : <FolderIcon />}</span>
                 <span className="folder-name">{folder.name}</span>
                 <span className="row-actions">
-                  <button className="row-action-btn row-action-btn--danger" title="Usuń folder" onClick={e => { e.stopPropagation(); onDeleteFolder(folder) }}>✕</button>
+                  <button className="row-action-btn" title="Edytuj folder" onClick={e => { e.stopPropagation(); onEditFolder(folder) }}>✎</button>
                 </span>
               </div>
               {isExpanded && folderNotebooks.map(nb => (
@@ -102,7 +99,6 @@ export function FolderTree({
                   {nb.type === 'prompt-based' && <span className="notebook-prompt-badge">✦</span>}
                   <span className="row-actions">
                     <button className="row-action-btn" title="Edytuj" onClick={e => { e.stopPropagation(); onEditNotebook(nb) }}>✎</button>
-                    <button className="row-action-btn row-action-btn--danger" title="Usuń" onClick={e => { e.stopPropagation(); onDeleteNotebook(nb) }}>✕</button>
                   </span>
                 </div>
               ))}
