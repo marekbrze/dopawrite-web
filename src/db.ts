@@ -29,10 +29,10 @@ export class DopawriteDB extends Dexie {
 
     if (cloud) {
       this.version(1).stores({
-        entries: '@id, date',
+        entries: 'id, date',
       })
       this.version(2).stores({
-        entries: '@id, date',
+        entries: 'id, date',
         folders: 'id, parentId',
         notebooks: 'id, folderId',
         notebookEntries: 'id, notebookId',
