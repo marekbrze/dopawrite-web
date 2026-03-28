@@ -198,6 +198,10 @@ export function NotebookEditor({ notebookId }: Props) {
     (notebook.prompts ?? []).length > 0 &&
     (notebook.prompts ?? []).every(p => usedPrompts.has(p))
 
+  const usedCount = usedPrompts.size
+  const totalCount = (notebook.prompts ?? []).length
+  const progressPct = totalCount > 0 ? Math.round((usedCount / totalCount) * 100) : 0
+
   return (
     <div className="notebook-editor-layout">
       <aside className="notebook-entries-list">
@@ -210,6 +214,27 @@ export function NotebookEditor({ notebookId }: Props) {
             disabled={allPromptsUsed}
           >+</button>
         </div>
+        {notebook.type === 'prompt-based' && totalCount > 0 && (
+          <div className={`prompt-progress${allPromptsUsed ? ' prompt-progress--done' : ''}`}>
+            <div className="prompt-progress-text">
+              <span className="prompt-progress-count">{usedCount} / {totalCount}</span>
+              <span className="prompt-progress-label">podpowiedzi</span>
+            </div>
+            <div
+              className="prompt-progress-track"
+              role="progressbar"
+              aria-valuenow={usedCount}
+              aria-valuemin={0}
+              aria-valuemax={totalCount}
+              aria-label={`Postęp podpowiedzi: ${usedCount} z ${totalCount} użytych`}
+            >
+              <div
+                className="prompt-progress-fill"
+                style={{ width: `${Math.min(progressPct, 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
         <div className="entry-list-body">
           {/* Draft entry shown at top when in draft mode */}
           {selectedEntryId === DRAFT_ID && (
