@@ -29,7 +29,8 @@ export function NotebookEditor({ notebookId }: Props) {
       setNotebook(nb)
     })
     const sub2 = liveQuery(() =>
-      db.notebookEntries.where('notebookId').equals(notebookId).sortBy('order')
+      db.notebookEntries.where('notebookId').equals(notebookId).toArray()
+        .then(rows => rows.sort((a, b) => a.order - b.order))
     ).subscribe(setEntries)
     return () => {
       sub1.unsubscribe()

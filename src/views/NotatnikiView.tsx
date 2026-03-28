@@ -16,8 +16,8 @@ export function NotatnikiView() {
   const [showCreateNotebook, setShowCreateNotebook] = useState(false)
 
   useEffect(() => {
-    const sub1 = liveQuery(() => db.folders.orderBy('order').toArray()).subscribe(setFolders)
-    const sub2 = liveQuery(() => db.notebooks.orderBy('order').toArray()).subscribe(setNotebooks)
+    const sub1 = liveQuery(() => db.folders.toArray()).subscribe(rows => setFolders([...rows].sort((a, b) => a.order - b.order)))
+    const sub2 = liveQuery(() => db.notebooks.toArray()).subscribe(rows => setNotebooks([...rows].sort((a, b) => a.order - b.order)))
     return () => {
       sub1.unsubscribe()
       sub2.unsubscribe()
