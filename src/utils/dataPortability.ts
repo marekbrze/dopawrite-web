@@ -88,8 +88,13 @@ export async function exportAllData(
   db: DopawriteDB,
   password?: string
 ): Promise<Blob> {
-  const entries = await db.entries.toArray()
-  const data: AppState = { entries }
+  const [entries, folders, notebooks, notebookEntries] = await Promise.all([
+    db.entries.toArray(),
+    db.folders.toArray(),
+    db.notebooks.toArray(),
+    db.notebookEntries.toArray(),
+  ])
+  const data: AppState = { entries, folders, notebooks, notebookEntries }
   const exportData: ExportData = {
     version: 1,
     exportedAt: new Date().toISOString(),
@@ -157,17 +162,31 @@ export async function executeImport(
   mode: ImportMode
 ): Promise<void> {
   const entries = data.data.entries ?? []
-  await db.transaction('rw', [db.entries], async () => {
+  const folders = data.data.folders ?? []
+  const notebooks = data.data.notebooks ?? []
+  const notebookEntries = data.data.notebookEntries ?? []
+  await db.transaction('rw', [db.entries, db.folders, db.notebooks, db.notebookEntries], async () => {
     if (mode === 'replace') {
       await db.entries.clear()
+      await db.folders.clear()
+      await db.notebooks.clear()
+      await db.notebookEntries.clear()
     }
     await db.entries.bulkPut(entries)
+    await db.folders.bulkPut(folders)
+    await db.notebooks.bulkPut(notebooks)
+    await db.notebookEntries.bulkPut(notebookEntries)
   })
 }
 
 export async function saveAutoBackup(db: DopawriteDB): Promise<void> {
-  const entries = await db.entries.toArray()
-  const data: AppState = { entries }
+  const [entries, folders, notebooks, notebookEntries] = await Promise.all([
+    db.entries.toArray(),
+    db.folders.toArray(),
+    db.notebooks.toArray(),
+    db.notebookEntries.toArray(),
+  ])
+  const data: AppState = { entries, folders, notebooks, notebookEntries }
   const exportData: ExportData = {
     version: 1,
     exportedAt: new Date().toISOString(),

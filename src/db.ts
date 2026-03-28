@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import dexieCloud from 'dexie-cloud-addon'
-import type { JournalEntry } from './types'
+import type { JournalEntry, Folder, Notebook, NotebookEntry } from './types'
 
 const getCloudUrl = (): string | null => {
   const raw = localStorage.getItem('dopawrite-cloud-url')
@@ -18,6 +18,9 @@ export const isCloudSchema = () => localStorage.getItem('dopawrite-schema') === 
 
 export class DopawriteDB extends Dexie {
   entries!: EntityTable<JournalEntry, 'id'>
+  folders!: EntityTable<Folder, 'id'>
+  notebooks!: EntityTable<Notebook, 'id'>
+  notebookEntries!: EntityTable<NotebookEntry, 'id'>
 
   constructor() {
     const cloudUrl = getCloudUrl()
@@ -28,9 +31,21 @@ export class DopawriteDB extends Dexie {
       this.version(1).stores({
         entries: '@id, date',
       })
+      this.version(2).stores({
+        entries: '@id, date',
+        folders: '@id, parentId',
+        notebooks: '@id, folderId',
+        notebookEntries: '@id, notebookId',
+      })
     } else {
       this.version(1).stores({
         entries: 'id, date',
+      })
+      this.version(2).stores({
+        entries: 'id, date',
+        folders: 'id, parentId',
+        notebooks: 'id, folderId',
+        notebookEntries: 'id, notebookId',
       })
     }
 

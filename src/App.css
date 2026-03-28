@@ -65,7 +65,45 @@ body {
   text-transform: uppercase;
   color: var(--text);
   white-space: nowrap;
+  margin-right: 20px;
+}
+
+/* ── View tabs ───────────────────────────────────────────── */
+
+.view-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   flex: 1;
+}
+
+.view-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 6px 14px;
+  transition: color 0.15s, border-color 0.15s;
+  text-transform: uppercase;
+  white-space: nowrap;
+  height: 52px;
+  display: flex;
+  align-items: center;
+}
+
+.view-tab:hover {
+  color: var(--text);
+}
+
+.view-tab.active {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .settings-btn {
@@ -667,4 +705,514 @@ body {
 
 @media (min-width: 769px) {
   .mobile-list-toggle { display: none; }
+}
+
+/* ── Entry list header actions ───────────────────────────── */
+
+.entry-list-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sidebar-mode-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 13px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  line-height: 1;
+}
+
+.sidebar-mode-btn:hover {
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.sidebar-mode-btn.active {
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--accent);
+}
+
+/* ── Calendar ────────────────────────────────────────────── */
+
+.calendar-wrapper {
+  padding: 12px 10px 8px;
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.calendar-nav-btn {
+  background: none;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+
+.calendar-nav-btn:hover {
+  background: var(--surface2);
+  border-color: var(--border);
+}
+
+.calendar-month-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.calendar-day-header {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-align: center;
+  padding: 4px 0;
+}
+
+.calendar-cell {
+  position: relative;
+  aspect-ratio: 1;
+  background: none;
+  border: none;
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s;
+}
+
+.calendar-cell:hover {
+  background: rgba(92, 74, 56, 0.06);
+}
+
+.calendar-cell.other-month {
+  color: var(--text-faint);
+  opacity: 0.4;
+}
+
+.calendar-cell.today {
+  background: var(--surface2);
+  font-weight: 600;
+}
+
+.calendar-cell.has-entry::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.calendar-cell.selected {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.calendar-cell.selected::after {
+  background: var(--bg);
+}
+
+.calendar-cell.today.selected {
+  background: var(--accent);
+}
+
+/* ── Notebooks folder tree ───────────────────────────────── */
+
+.folder-tree {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.folder-tree-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.folder-tree-header h2 {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.folder-tree-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.folder-tree-body {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.folder-group {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.folder-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.folder-row:hover {
+  background: rgba(92, 74, 56, 0.04);
+}
+
+.folder-arrow {
+  font-size: 10px;
+  color: var(--text-faint);
+  width: 10px;
+  flex-shrink: 0;
+}
+
+.folder-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.notebook-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border-light);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition: background 0.1s, border-left-color 0.15s;
+}
+
+.notebook-row:hover {
+  background: rgba(92, 74, 56, 0.04);
+}
+
+.notebook-row.selected {
+  border-left-color: var(--accent);
+  background: rgba(92, 74, 56, 0.05);
+}
+
+.notebook-row--indented {
+  padding-left: 30px;
+}
+
+.notebook-row-icon {
+  font-size: 11px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.notebook-row.selected .notebook-row-icon {
+  color: var(--accent);
+}
+
+.notebook-row-name {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Notebook editor layout ──────────────────────────────── */
+
+.notebook-editor-layout {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+.notebook-entries-list {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ── Prompt banner ───────────────────────────────────────── */
+
+.prompt-banner {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 28px 12px;
+  flex-shrink: 0;
+}
+
+.prompt-banner-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.prompt-banner-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+}
+
+.prompt-reroll-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.prompt-reroll-btn:hover {
+  background: var(--surface);
+  border-color: var(--accent-soft);
+  color: var(--text);
+}
+
+.prompt-banner-text {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-muted);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* ── Simple modal (folder/notebook creation) ─────────────── */
+
+.simple-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  width: 360px;
+  box-shadow: 0 2px 8px rgba(28,23,18,.08), 0 8px 32px rgba(28,23,18,.10);
+  overflow: hidden;
+}
+
+.simple-modal--wide {
+  width: 480px;
+}
+
+.simple-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg);
+}
+
+.simple-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-muted);
+}
+
+.modal-text-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  padding: 6px 0;
+  transition: border-color 0.15s;
+}
+
+.modal-text-input:focus {
+  border-bottom-color: var(--accent);
+}
+
+.modal-text-input::placeholder {
+  color: var(--text-faint);
+}
+
+.modal-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 13px;
+  outline: none;
+  padding: 6px 8px;
+}
+
+.modal-radio-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.modal-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.modal-textarea {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  outline: none;
+  padding: 8px 10px;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+.modal-textarea:focus {
+  border-color: var(--accent-soft);
+}
+
+.modal-textarea::placeholder {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.modal-btn-secondary {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.modal-btn-secondary:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.modal-btn-primary {
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  color: var(--surface);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  transition: opacity 0.15s;
+}
+
+.modal-btn-primary:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.modal-btn-primary:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
