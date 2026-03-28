@@ -706,6 +706,25 @@ body {
 
   .editor-textarea {
     font-size: 16px; /* prevent iOS auto-zoom */
+    min-height: 200px;
+  }
+
+  /* Wewnętrzna lista notatek — pionowy układ na mobile */
+  .notebook-editor-layout {
+    flex-direction: column;
+  }
+
+  .notebook-entries-list {
+    width: 100%;
+    height: 180px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  /* Modalne okna — nie mogą wychodzić poza ekran */
+  .simple-modal {
+    width: calc(100vw - 24px);
   }
 }
 

@@ -31,22 +31,20 @@ export default function App() {
         <nav className="view-tabs">
           <button
             className={`view-tab${activeView === 'dziennik' ? ' active' : ''}`}
-            onClick={() => setActiveView('dziennik')}
+            onClick={() => { setActiveView('dziennik'); setMobileListOpen(false); }}
           >
             Dziennik
           </button>
           <button
             className={`view-tab${activeView === 'notatniki' ? ' active' : ''}`}
-            onClick={() => setActiveView('notatniki')}
+            onClick={() => { setActiveView('notatniki'); setMobileListOpen(false); }}
           >
             Notatniki
           </button>
         </nav>
-        {activeView === 'dziennik' && (
-          <button className="mobile-list-toggle" onClick={() => setMobileListOpen(o => !o)}>
-            Wpisy
-          </button>
-        )}
+        <button className="mobile-list-toggle" onClick={() => setMobileListOpen(o => !o)}>
+          {activeView === 'dziennik' ? 'Wpisy' : 'Foldery'}
+        </button>
         <button className="settings-btn" onClick={() => setShowSettings(true)}>
           Ustawienia
         </button>
@@ -55,7 +53,9 @@ export default function App() {
       {activeView === 'dziennik' && (
         <DziennikView mobileListOpen={mobileListOpen} setMobileListOpen={setMobileListOpen} />
       )}
-      {activeView === 'notatniki' && <NotatnikiView />}
+      {activeView === 'notatniki' && (
+        <NotatnikiView mobileListOpen={mobileListOpen} setMobileListOpen={setMobileListOpen} />
+      )}
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
     </div>

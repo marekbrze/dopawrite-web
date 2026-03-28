@@ -32,7 +32,12 @@ async function deleteFolder(folderId: string) {
   })
 }
 
-export function NotatnikiView() {
+interface Props {
+  mobileListOpen: boolean
+  setMobileListOpen: (open: boolean) => void
+}
+
+export function NotatnikiView({ mobileListOpen, setMobileListOpen }: Props) {
   const [folders, setFolders] = useState<Folder[]>([])
   const [notebooks, setNotebooks] = useState<Notebook[]>([])
   const [usedPromptCounts, setUsedPromptCounts] = useState<Map<string, number>>(new Map())
@@ -108,14 +113,14 @@ export function NotatnikiView() {
 
   return (
     <div className="journal-layout">
-      <aside className="entry-list">
+      <aside className={`entry-list${mobileListOpen ? ' mobile-open' : ''}`}>
         <FolderTree
           folders={folders}
           notebooks={notebooks}
           usedPromptCounts={usedPromptCounts}
           selectedNotebookId={selectedNotebookId}
           expandedFolderIds={expandedFolderIds}
-          onSelectNotebook={setSelectedNotebookId}
+          onSelectNotebook={(id) => { setSelectedNotebookId(id); setMobileListOpen(false); }}
           onToggleFolder={handleToggleFolder}
           onCreateFolder={() => setShowCreateFolder(true)}
           onCreateNotebook={() => setShowCreateNotebook(true)}
