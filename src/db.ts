@@ -33,9 +33,9 @@ export class DopawriteDB extends Dexie {
       })
       this.version(2).stores({
         entries: '@id, date',
-        folders: '@id, parentId',
-        notebooks: '@id, folderId',
-        notebookEntries: '@id, notebookId',
+        folders: 'id, parentId',
+        notebooks: 'id, folderId',
+        notebookEntries: 'id, notebookId',
       })
     } else {
       this.version(1).stores({

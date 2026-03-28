@@ -1052,6 +1052,9 @@ body {
   border: 1px solid var(--border);
   border-radius: 2px;
   width: 360px;
+  max-height: calc(100dvh - 80px);
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 2px 8px rgba(28,23,18,.08), 0 8px 32px rgba(28,23,18,.10);
   overflow: hidden;
 }
@@ -1072,6 +1075,7 @@ body {
   text-transform: uppercase;
   color: var(--text-muted);
   background: var(--bg);
+  flex-shrink: 0;
 }
 
 .simple-modal-body {
@@ -1079,6 +1083,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 .modal-label {
