@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { liveQuery } from 'dexie'
 import { db } from '../../db'
 import { NotebookEntryEditor } from './NotebookEntryEditor'
@@ -38,6 +38,11 @@ export function NotebookEditor({ notebookId }: Props) {
     }
   }, [notebookId])
 
+  const usedPrompts = useMemo(
+    () => new Set(entries.map(e => e.prompt).filter(Boolean) as string[]),
+    [entries]
+  )
+
   // Reset state when switching notebooks
   useEffect(() => {
     setSelectedEntryId(null)
@@ -61,31 +66,26 @@ export function NotebookEditor({ notebookId }: Props) {
     }
   }, [selectedEntryId, entries, notebook])
 
-  const pickPrompt = useCallback((nb: Notebook): string => {
-    const prompts = nb.prompts ?? []
+  const pickPrompt = useCallback((nb: Notebook, used: Set<string>): string => {
+    const prompts = (nb.prompts ?? []).filter(p => !used.has(p))
     if (prompts.length === 0) return ''
     if (nb.promptMode === 'shuffle') {
       return prompts[Math.floor(Math.random() * prompts.length)]
     }
-    // sequential
-    const idx = (nb.nextPromptIndex ?? 0) % prompts.length
-    db.notebooks.update(nb.id, { nextPromptIndex: idx + 1 })
-    return prompts[idx]
+    // sequential: first unused in original order
+    return prompts[0]
   }, [])
 
   const handleReroll = useCallback(() => {
     if (!notebook) return
-    const prompts = notebook.prompts ?? []
+    const prompts = (notebook.prompts ?? []).filter(p => !usedPrompts.has(p))
     if (prompts.length === 0) return
     if (notebook.promptMode === 'shuffle') {
       setDraftPrompt(prompts[Math.floor(Math.random() * prompts.length)])
     } else {
-      // sequential: advance to next
-      const idx = (notebook.nextPromptIndex ?? 0) % prompts.length
-      db.notebooks.update(notebook.id, { nextPromptIndex: idx + 1 })
-      setDraftPrompt(prompts[idx])
+      setDraftPrompt(prompts[0])
     }
-  }, [notebook])
+  }, [notebook, usedPrompts])
 
   const handleNewEntry = useCallback(() => {
     if (!notebook) return
@@ -93,7 +93,9 @@ export function NotebookEditor({ notebookId }: Props) {
     const now = new Date().toISOString()
 
     if (notebook.type === 'prompt-based') {
-      const prompt = pickPrompt(notebook)
+      const availablePrompts = (notebook.prompts ?? []).filter(p => !usedPrompts.has(p))
+      if (availablePrompts.length === 0) return
+      const prompt = pickPrompt(notebook, usedPrompts)
       setDraftPrompt(prompt)
       setEditorState({ id: DRAFT_ID, title: '', content: '' })
       setSelectedEntryId(DRAFT_ID)
@@ -191,39 +193,55 @@ export function NotebookEditor({ notebookId }: Props) {
 
   if (!notebook) return null
 
+  const allPromptsUsed =
+    notebook.type === 'prompt-based' &&
+    (notebook.prompts ?? []).length > 0 &&
+    (notebook.prompts ?? []).every(p => usedPrompts.has(p))
+
   return (
     <div className="notebook-editor-layout">
       <aside className="notebook-entries-list">
         <div className="entry-list-header">
           <h2>{notebook.name}</h2>
-          <button className="new-entry-btn" onClick={handleNewEntry} title="Nowa notatka">+</button>
+          <button
+            className="new-entry-btn"
+            onClick={handleNewEntry}
+            title={allPromptsUsed ? 'Wszystkie podpowiedzi użyte' : 'Nowa notatka'}
+            disabled={allPromptsUsed}
+          >+</button>
         </div>
         <div className="entry-list-body">
           {/* Draft entry shown at top when in draft mode */}
           {selectedEntryId === DRAFT_ID && (
             <div className="entry-item selected">
               <span className="entry-item-title">
-                <em style={{ color: 'var(--text-faint)', fontStyle: 'italic' }}>Nowa notatka…</em>
+                {notebook.type === 'prompt-based' && draftPrompt
+                  ? draftPrompt
+                  : <em style={{ color: 'var(--text-faint)', fontStyle: 'italic' }}>Nowa notatka…</em>
+                }
               </span>
             </div>
           )}
           {entries.length === 0 && selectedEntryId !== DRAFT_ID && (
             <p className="entry-list-empty">Brak notatek. Kliknij + aby zacząć.</p>
           )}
-          {entries.map(entry => (
-            <div
-              key={entry.id}
-              className={`entry-item${entry.id === selectedEntryId ? ' selected' : ''}`}
-              onClick={() => handleSelectEntry(entry)}
-            >
-              <span className="entry-item-title">
-                {entry.title || <em style={{ color: 'var(--text-faint)', fontStyle: 'italic' }}>Bez tytułu</em>}
-              </span>
-              {entry.content && (
-                <span className="entry-item-preview">{entry.content.slice(0, 60)}</span>
-              )}
-            </div>
-          ))}
+          {entries.map(entry => {
+            const displayTitle = notebook.type === 'prompt-based'
+              ? (entry.prompt || <em style={{ color: 'var(--text-faint)', fontStyle: 'italic' }}>Bez podpowiedzi</em>)
+              : (entry.title || <em style={{ color: 'var(--text-faint)', fontStyle: 'italic' }}>Bez tytułu</em>)
+            return (
+              <div
+                key={entry.id}
+                className={`entry-item${entry.id === selectedEntryId ? ' selected' : ''}`}
+                onClick={() => handleSelectEntry(entry)}
+              >
+                <span className="entry-item-title">{displayTitle}</span>
+                {entry.content && (
+                  <span className="entry-item-preview">{entry.content.slice(0, 60)}</span>
+                )}
+              </div>
+            )
+          })}
         </div>
       </aside>
 

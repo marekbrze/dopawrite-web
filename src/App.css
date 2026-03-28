@@ -190,6 +190,12 @@ body {
   color: var(--text);
 }
 
+.new-entry-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .entry-list-body {
   flex: 1;
   overflow-y: auto;

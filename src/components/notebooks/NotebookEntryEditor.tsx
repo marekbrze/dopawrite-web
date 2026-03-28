@@ -49,13 +49,15 @@ export function NotebookEntryEditor({
             </div>
           )}
           <div className="editor-toolbar">
-            <input
-              type="text"
-              className="editor-title-input"
-              value={editorState.title}
-              onChange={e => onEditorChange({ title: e.target.value })}
-              placeholder="Tytuł notatki…"
-            />
+            {!isPromptBased && (
+              <input
+                type="text"
+                className="editor-title-input"
+                value={editorState.title}
+                onChange={e => onEditorChange({ title: e.target.value })}
+                placeholder="Tytuł notatki…"
+              />
+            )}
             {saveStatus === 'saving' && <span className="editor-save-status">Zapisywanie…</span>}
             {saveStatus === 'saved' && <span className="editor-save-status">Zapisano</span>}
             <button className="editor-delete-btn" onClick={onDelete}>Usuń</button>
