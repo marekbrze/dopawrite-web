@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { liveQuery } from 'dexie'
 import { db } from '../db'
 import { MonthCalendar } from '../components/calendar/MonthCalendar'
+import { MarkdownEditor } from '../components/MarkdownEditor'
 import type { JournalEntry } from '../types'
 
 function formatDateLabel(dateStr: string): string {
@@ -227,10 +228,9 @@ export function DziennikView({ mobileListOpen, setMobileListOpen }: Props) {
               <button className="editor-delete-btn" onClick={handleDeleteEntry}>Usuń</button>
             </div>
             <div className="editor-content">
-              <textarea
-                className="editor-textarea"
+              <MarkdownEditor
                 value={editorState.content}
-                onChange={e => handleEditorChange({ content: e.target.value })}
+                onChange={content => handleEditorChange({ content })}
                 placeholder="Zacznij pisać…"
                 autoFocus
               />

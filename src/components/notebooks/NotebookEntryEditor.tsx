@@ -1,4 +1,5 @@
 import type { Notebook } from '../../types'
+import { MarkdownEditor } from '../MarkdownEditor'
 
 interface EditorState {
   id: string
@@ -63,10 +64,9 @@ export function NotebookEntryEditor({
             <button className="editor-delete-btn" onClick={onDelete}>Usuń</button>
           </div>
           <div className="editor-content">
-            <textarea
-              className="editor-textarea"
+            <MarkdownEditor
               value={editorState.content}
-              onChange={e => onEditorChange({ content: e.target.value })}
+              onChange={content => onEditorChange({ content })}
               placeholder="Zacznij pisać…"
               autoFocus
             />
