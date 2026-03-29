@@ -703,12 +703,66 @@ body {
   margin: 16px 0;
 }
 
+/* ── Bottom nav (mobile only) ────────────────────────────── */
+
+.app-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(56px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 60;
+    align-items: stretch;
+  }
+}
+
+.app-bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 8px 4px;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-bottom-nav-item.active {
+  color: var(--accent);
+}
+
+.app-bottom-nav-item:active {
+  background: var(--surface2);
+}
+
 /* ── Mobile ──────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
+  .app {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
+  }
+
   .entry-list {
     position: fixed;
-    bottom: 0;
+    bottom: calc(56px + env(safe-area-inset-bottom));
     left: 0;
     right: 0;
     width: 100%;
@@ -718,8 +772,20 @@ body {
     border-top: 1px solid var(--border);
     border-radius: 14px 14px 0 0;
     box-shadow: 0 -4px 24px rgba(0,0,0,.10);
-    transform: translateY(100%);
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(calc(100% + 56px + env(safe-area-inset-bottom)));
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Drag handle */
+  .entry-list::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 10px auto 2px;
+    flex-shrink: 0;
   }
 
   .entry-list.mobile-open {
@@ -732,10 +798,6 @@ body {
 
   .editor-panel {
     flex: 1;
-  }
-
-  .mobile-list-toggle {
-    display: flex;
   }
 
   .settings-modal {
@@ -782,26 +844,6 @@ body {
     justify-content: center;
   }
 
-  .mobile-list-toggle {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text-muted);
-    cursor: pointer;
-    font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 5px 9px;
-    transition: background 0.15s;
-  }
-
-  .mobile-list-toggle:hover {
-    background: var(--surface2);
-    color: var(--text);
-  }
-
   .editor-toolbar {
     padding: 10px 16px 8px;
     gap: 8px;
@@ -819,7 +861,7 @@ body {
   /* Wewnętrzna lista notatek — szuflada na mobile */
   .notebook-entries-list {
     position: fixed;
-    bottom: 0;
+    bottom: calc(56px + env(safe-area-inset-bottom));
     left: 0;
     right: 0;
     width: 100%;
@@ -829,8 +871,20 @@ body {
     border-top: 1px solid var(--border);
     border-radius: 14px 14px 0 0;
     box-shadow: 0 -4px 24px rgba(0,0,0,.10);
-    transform: translateY(100%);
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(calc(100% + 56px + env(safe-area-inset-bottom)));
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Drag handle */
+  .notebook-entries-list::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 10px auto 2px;
+    flex-shrink: 0;
   }
 
   .notebook-entries-list.mobile-open {
@@ -865,24 +919,22 @@ body {
     width: calc(100vw - 24px);
   }
 
-  /* Header — compressed for narrow screens */
+  /* Header — hide nav on mobile, bottom nav handles it */
   .app-header {
-    padding: 0 12px;
-    gap: 4px;
+    padding: 0 16px;
   }
 
-  .logo {
-    margin-right: 8px;
-    font-size: 13px;
-  }
-
-  .view-tab {
-    padding: 6px 10px;
+  .view-tabs {
+    display: none;
   }
 
   .settings-btn {
-    padding: 5px 9px;
-    font-size: 9px;
+    display: none;
+  }
+
+  .logo {
+    margin-right: 0;
+    font-size: 14px;
   }
 
   /* Touch targets */
@@ -901,6 +953,7 @@ body {
 @media (min-width: 769px) {
   .mobile-list-toggle { display: none; }
   .mobile-entries-toggle { display: none; }
+  .app-bottom-nav { display: none; }
 }
 
 /* ── Mobile drawer backdrop ──────────────────────────────── */
