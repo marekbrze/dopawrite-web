@@ -16,6 +16,7 @@ interface Props {
   onDelete: () => void
   onReroll: () => void
   onNewEntry: () => void
+  onToggleEntries?: () => void
 }
 
 export function NotebookEntryEditor({
@@ -27,6 +28,7 @@ export function NotebookEntryEditor({
   onDelete,
   onReroll,
   onNewEntry,
+  onToggleEntries,
 }: Props) {
   const isPromptBased = notebook.type === 'prompt-based'
   const rerollLabel = notebook.promptMode === 'sequential' ? 'Następny' : 'Losuj'
@@ -35,6 +37,9 @@ export function NotebookEntryEditor({
     <main className="editor-panel">
       {!editorState ? (
         <div className="editor-empty">
+          {onToggleEntries && (
+            <button className="mobile-entries-toggle" onClick={onToggleEntries}>≡ Notatki</button>
+          )}
           <p>Wybierz notatkę lub utwórz nową</p>
           <button onClick={onNewEntry}>Nowa notatka</button>
         </div>
@@ -50,6 +55,9 @@ export function NotebookEntryEditor({
             </div>
           )}
           <div className="editor-toolbar">
+            {onToggleEntries && (
+              <button className="mobile-entries-toggle" onClick={onToggleEntries}>≡</button>
+            )}
             {!isPromptBased && (
               <input
                 type="text"

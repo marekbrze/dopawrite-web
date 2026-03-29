@@ -816,17 +816,48 @@ body {
     min-height: 200px;
   }
 
-  /* Wewnętrzna lista notatek — pionowy układ na mobile */
-  .notebook-editor-layout {
-    flex-direction: column;
+  /* Wewnętrzna lista notatek — szuflada na mobile */
+  .notebook-entries-list {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 50dvh;
+    z-index: 50;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -4px 24px rgba(0,0,0,.10);
+    transform: translateY(100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .notebook-entries-list {
-    width: 100%;
-    height: 240px;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+  .notebook-entries-list.mobile-open {
+    transform: translateY(0);
+  }
+
+  .mobile-entries-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
+    font-size: 14px;
+    padding: 5px 9px;
+    min-width: 32px;
+    min-height: 32px;
     flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .mobile-entries-toggle:hover {
+    background: var(--surface2);
+    color: var(--text);
   }
 
   /* Modalne okna — nie mogą wychodzić poza ekran */
@@ -869,6 +900,7 @@ body {
 
 @media (min-width: 769px) {
   .mobile-list-toggle { display: none; }
+  .mobile-entries-toggle { display: none; }
 }
 
 /* ── Mobile drawer backdrop ──────────────────────────────── */

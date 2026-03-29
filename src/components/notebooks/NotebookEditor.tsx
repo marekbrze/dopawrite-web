@@ -22,6 +22,7 @@ export function NotebookEditor({ notebookId }: Props) {
   const [editorState, setEditorState] = useState<NotebookEditorState | null>(null)
   const [draftPrompt, setDraftPrompt] = useState<string | null>(null)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | ''>('')
+  const [mobileEntriesOpen, setMobileEntriesOpen] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export function NotebookEditor({ notebookId }: Props) {
     setSelectedEntryId(null)
     setEditorState(null)
     setDraftPrompt(null)
+    setMobileEntriesOpen(false)
     if (saveTimer.current) clearTimeout(saveTimer.current)
   }, [notebookId])
 
@@ -107,6 +109,7 @@ export function NotebookEditor({ notebookId }: Props) {
       setDraftPrompt(prompt)
       setEditorState({ id: DRAFT_ID, title: '', content: '' })
       setSelectedEntryId(DRAFT_ID)
+      setMobileEntriesOpen(false)
     } else {
       // Create immediately for regular notebooks
       const maxOrder = entries.length > 0 ? Math.max(...entries.map(e => e.order)) : 0
@@ -121,6 +124,7 @@ export function NotebookEditor({ notebookId }: Props) {
       }).then(() => {
         setSelectedEntryId(newId)
         setDraftPrompt(null)
+        setMobileEntriesOpen(false)
       })
     }
   }, [notebook, notebookId, entries, pickPrompt])
@@ -131,6 +135,7 @@ export function NotebookEditor({ notebookId }: Props) {
       flushSave(editorState)
     }
     setSelectedEntryId(entry.id)
+    setMobileEntriesOpen(false)
   }
 
   const flushSave = useCallback(async (state: NotebookEditorState) => {
@@ -212,7 +217,10 @@ export function NotebookEditor({ notebookId }: Props) {
 
   return (
     <div className="notebook-editor-layout">
-      <aside className="notebook-entries-list">
+      {mobileEntriesOpen && (
+        <div className="mobile-drawer-backdrop" onClick={() => setMobileEntriesOpen(false)} />
+      )}
+      <aside className={`notebook-entries-list${mobileEntriesOpen ? ' mobile-open' : ''}`}>
         <div className="entry-list-header">
           <h2>{notebook.name}</h2>
           <button
@@ -287,6 +295,7 @@ export function NotebookEditor({ notebookId }: Props) {
         onDelete={handleDelete}
         onReroll={handleReroll}
         onNewEntry={handleNewEntry}
+        onToggleEntries={() => setMobileEntriesOpen(o => !o)}
       />
     </div>
   )
