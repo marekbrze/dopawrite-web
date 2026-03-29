@@ -27,13 +27,13 @@ body {
   color: var(--text);
   font-family: 'IBM Plex Sans', Helvetica Neue, Arial, sans-serif;
   font-weight: 400;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 #root {
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -41,7 +41,7 @@ body {
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
 }
 
 /* ── Header ──────────────────────────────────────────────── */
@@ -712,7 +712,7 @@ body {
     left: 0;
     right: 0;
     width: 100%;
-    height: 50vh;
+    height: 50dvh;
     z-index: 50;
     border-right: none;
     border-top: 1px solid var(--border);
@@ -793,7 +793,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 5px 12px;
+    padding: 5px 9px;
     transition: background 0.15s;
   }
 
@@ -823,7 +823,7 @@ body {
 
   .notebook-entries-list {
     width: 100%;
-    height: 180px;
+    height: 240px;
     border-right: none;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
@@ -833,10 +833,64 @@ body {
   .simple-modal {
     width: calc(100vw - 24px);
   }
+
+  /* Header — compressed for narrow screens */
+  .app-header {
+    padding: 0 12px;
+    gap: 4px;
+  }
+
+  .logo {
+    margin-right: 8px;
+    font-size: 13px;
+  }
+
+  .view-tab {
+    padding: 6px 10px;
+  }
+
+  .settings-btn {
+    padding: 5px 9px;
+    font-size: 9px;
+  }
+
+  /* Touch targets */
+  .new-entry-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .sidebar-mode-btn {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 @media (min-width: 769px) {
   .mobile-list-toggle { display: none; }
+}
+
+/* ── Mobile drawer backdrop ──────────────────────────────── */
+
+.mobile-drawer-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 23, 18, 0.35);
+    z-index: 49;
+    animation: fadeIn 0.2s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ── Entry list header actions ───────────────────────────── */

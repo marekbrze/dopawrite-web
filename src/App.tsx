@@ -50,6 +50,10 @@ export default function App() {
         </button>
       </header>
 
+      {mobileListOpen && (
+        <div className="mobile-drawer-backdrop" onClick={() => setMobileListOpen(false)} />
+      )}
+
       {activeView === 'dziennik' && (
         <DziennikView mobileListOpen={mobileListOpen} setMobileListOpen={setMobileListOpen} />
       )}
