@@ -9,41 +9,20 @@ interface Props {
   autoFocus?: boolean
 }
 
-const PREVIEW_DELAY = 1500
-
 export function MarkdownEditor({ value, onChange, placeholder, autoFocus }: Props) {
   const [isPreview, setIsPreview] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const cancelTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-  }, [])
-
-  const schedulePreview = useCallback(() => {
-    cancelTimer()
-    if (!value.trim()) return
-    timerRef.current = setTimeout(() => setIsPreview(true), PREVIEW_DELAY)
-  }, [value, cancelTimer])
 
   const switchToEdit = useCallback(() => {
-    cancelTimer()
     setIsPreview(false)
     requestAnimationFrame(() => {
       textareaRef.current?.focus()
     })
-  }, [cancelTimer])
+  }, [])
 
-  // Schedule preview whenever value changes while editing
-  useEffect(() => {
-    if (!isPreview) {
-      schedulePreview()
-    }
-    return cancelTimer
-  }, [value, isPreview, schedulePreview, cancelTimer])
+  const switchToPreview = useCallback(() => {
+    if (value.trim()) setIsPreview(true)
+  }, [value])
 
   // If content is cleared, go back to edit mode
   useEffect(() => {
@@ -74,6 +53,7 @@ export function MarkdownEditor({ value, onChange, placeholder, autoFocus }: Prop
       className="editor-textarea"
       value={value}
       onChange={e => onChange(e.target.value)}
+      onBlur={switchToPreview}
       placeholder={placeholder}
       autoFocus={autoFocus}
     />
