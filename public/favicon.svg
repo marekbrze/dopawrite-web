@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background rounded square -->
+  <rect width="32" height="32" rx="7" fill="#f4efe5"/>
+  <!-- Pencil icon in brand brown -->
+  <!-- Pencil body -->
+  <rect x="13" y="5" width="7" height="16" rx="1.5" fill="#5c4a38"/>
+  <!-- Pencil tip (triangle) -->
+  <polygon points="13,21 20,21 16.5,27" fill="#5c4a38"/>
+  <!-- Eraser top cap -->
+  <rect x="13" y="5" width="7" height="3.5" rx="1.5" fill="#7a6150"/>
+  <!-- Highlight line on pencil -->
+  <rect x="18" y="8.5" width="1.2" height="11" rx="0.6" fill="#7a6150" opacity="0.6"/>
+</svg>
