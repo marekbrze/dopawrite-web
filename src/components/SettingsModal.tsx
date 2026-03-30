@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { ExportData, ImportPreview, ImportMode } from '../types'
-import { db, isCloudSchema } from '../db'
-import { migrateToCloudSchema, connectToExistingCloud } from '../utils/cloudMigration'
+import { db } from '../db'
 import {
   exportAllData,
   parseImportFile,
@@ -13,6 +12,7 @@ import {
   formatExportDate,
   isEncryptedFile,
 } from '../utils/dataPortability'
+import { SyncWizard } from './SyncWizard'
 
 interface Props {
   onClose: () => void
@@ -35,87 +35,9 @@ export function SettingsModal({ onClose }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [autoBackup, setAutoBackup] = useState<ExportData | null>(null)
 
-  // Sync state
-  const [cloudUrl, setCloudUrl] = useState(() => localStorage.getItem('dopawrite-cloud-url') ?? '')
-  const [urlDraft, setUrlDraft] = useState(() => localStorage.getItem('dopawrite-cloud-url') ?? '')
-  const [urlError, setUrlError] = useState<string | null>(null)
-  const [syncEmail, setSyncEmail] = useState('')
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'sending' | 'awaiting-otp' | 'verifying'>('idle')
-  const [syncOtp, setSyncOtp] = useState('')
-  const [currentUser, setCurrentUser] = useState<{ userId?: string; email?: string; isLoggedIn: boolean } | null>(null)
-  const [migrating, setMigrating] = useState(false)
-
   useEffect(() => {
     setAutoBackup(loadAutoBackup())
   }, [])
-
-  useEffect(() => {
-    if (!cloudUrl) return
-    try {
-      const subscription = db.cloud.currentUser.subscribe((user) => {
-        setCurrentUser(user ? { userId: user.userId, email: user.email, isLoggedIn: user.isLoggedIn ?? false } : { isLoggedIn: false })
-      })
-      return () => subscription.unsubscribe()
-    } catch {
-      // cloud not configured
-    }
-  }, [cloudUrl])
-
-  const validateDexieCloudUrl = (url: string): string | null => {
-    if (!url) return null
-    try {
-      const parsed = new URL(url)
-      if (!parsed.hostname.endsWith('.dexie.cloud')) return 'URL musi wskazywać na domenę *.dexie.cloud'
-      return null
-    } catch {
-      return 'Nieprawidłowy URL'
-    }
-  }
-
-  const handleSaveUrl = () => {
-    const err = validateDexieCloudUrl(urlDraft)
-    if (err) { setUrlError(err); return }
-    setUrlError(null)
-    if (urlDraft) {
-      localStorage.setItem('dopawrite-cloud-url', urlDraft)
-    } else {
-      localStorage.removeItem('dopawrite-cloud-url')
-    }
-    setCloudUrl(urlDraft)
-    window.location.reload()
-  }
-
-  const handleLogin = async () => {
-    if (!syncEmail.trim()) return
-    setSyncStatus('sending')
-    try {
-      await db.cloud.login({ email: syncEmail.trim(), grant_type: 'otp' })
-      setSyncStatus('awaiting-otp')
-    } catch {
-      setSyncStatus('idle')
-    }
-  }
-
-  const handleVerifyOtp = async () => {
-    if (!syncOtp.trim()) return
-    setSyncStatus('verifying')
-    try {
-      await db.cloud.login({ email: syncEmail.trim(), grant_type: 'otp', otp: syncOtp.trim() })
-      setSyncStatus('idle')
-      setSyncOtp('')
-    } catch {
-      setSyncStatus('awaiting-otp')
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await db.cloud.logout()
-      setCurrentUser(null)
-    } catch {
-      // ignore
-    }
-  }
 
   const handleExport = async () => {
     setExporting(true)
@@ -363,115 +285,7 @@ export function SettingsModal({ onClose }: Props) {
               </div>
             )}
 
-            {activeCategory === 'sync' && (
-              <div className="sync-section">
-                <div className="sync-url-block" style={{ marginBottom: 20 }}>
-                  <p style={{ fontSize: 11, color: 'var(--text-faint)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
-                    Dexie Cloud URL
-                  </p>
-                  <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
-                    Wpisz adres swojej bazy Dexie Cloud, aby włączyć synchronizację między urządzeniami.
-                  </p>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                    <input
-                      type="url"
-                      value={urlDraft}
-                      onChange={e => setUrlDraft(e.target.value)}
-                      placeholder="https://xxxxxxxx.dexie.cloud"
-                      style={{ flex: 1, background: 'transparent', border: 'none', borderBottom: '1px solid var(--border)', padding: '6px 0', fontSize: 14, fontFamily: 'inherit', color: 'var(--text)', outline: 'none' }}
-                      onKeyDown={e => { if (e.key === 'Enter') handleSaveUrl() }}
-                    />
-                    <button
-                      onClick={handleSaveUrl}
-                      className="sync-btn"
-                    >
-                      Zapisz
-                    </button>
-                  </div>
-                  {urlError && <p style={{ fontSize: 12, color: '#c0392b' }}>{urlError}</p>}
-                </div>
-
-                {cloudUrl && (
-                  <>
-                    <hr className="sync-divider" />
-                    {!isCloudSchema() ? (
-                      <div style={{ marginBottom: 20 }}>
-                        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
-                          Dane są przechowywane lokalnie. Aby zsynchronizować je z chmurą, wykonaj migrację.
-                        </p>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button
-                            onClick={async () => { setMigrating(true); await migrateToCloudSchema() }}
-                            disabled={migrating}
-                            className="sync-btn"
-                          >
-                            {migrating ? 'Migracja…' : 'Migruj dane do chmury'}
-                          </button>
-                          <button
-                            onClick={connectToExistingCloud}
-                            style={{ fontSize: 11, padding: '7px 12px', border: '1px solid var(--border)', borderRadius: 'var(--radius)', cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)', fontFamily: 'inherit', letterSpacing: '0.05em', textTransform: 'uppercase' }}
-                          >
-                            Podłącz istniejącą
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="sync-login-block">
-                        {currentUser?.isLoggedIn ? (
-                          <div className="sync-logged-in">
-                            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 10 }}>
-                              Zalogowano jako <strong>{currentUser.email ?? currentUser.userId}</strong>
-                            </p>
-                            <button onClick={handleLogout} className="sync-btn">Wyloguj</button>
-                          </div>
-                        ) : (
-                          <div className="sync-info">
-                            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
-                              Podaj adres e-mail, aby zalogować się do synchronizacji.
-                            </p>
-                            {syncStatus === 'idle' || syncStatus === 'sending' ? (
-                              <div className="sync-login-form">
-                                <input
-                                  type="email"
-                                  value={syncEmail}
-                                  onChange={e => setSyncEmail(e.target.value)}
-                                  placeholder="twój@email.com"
-                                  onKeyDown={e => { if (e.key === 'Enter') handleLogin() }}
-                                />
-                                <button
-                                  onClick={handleLogin}
-                                  disabled={syncStatus === 'sending'}
-                                  className="sync-btn"
-                                >
-                                  {syncStatus === 'sending' ? 'Wysyłanie…' : 'Wyślij kod'}
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="sync-login-form">
-                                <input
-                                  type="text"
-                                  value={syncOtp}
-                                  onChange={e => setSyncOtp(e.target.value)}
-                                  placeholder="Kod OTP z e-maila"
-                                  onKeyDown={e => { if (e.key === 'Enter') handleVerifyOtp() }}
-                                />
-                                <button
-                                  onClick={handleVerifyOtp}
-                                  disabled={syncStatus === 'verifying'}
-                                  className="sync-btn"
-                                >
-                                  {syncStatus === 'verifying' ? 'Weryfikacja…' : 'Zaloguj'}
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+            {activeCategory === 'sync' && <SyncWizard />}
           </div>
         </div>
       </div>
